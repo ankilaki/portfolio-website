@@ -6,10 +6,11 @@ import type { Project } from "@/types";
 interface Props {
   project: Project;
   index: number;
+  featured?: boolean;
 }
 
-export default function ProjectCard({ project, index }: Props) {
-  const thumbnail = project.media?.[0];
+export default function ProjectCard({ project, index, featured = false }: Props) {
+  const thumbnail = project.media?.[project.thumbnailIndex ?? 0];
 
   return (
     <motion.div
@@ -17,12 +18,13 @@ export default function ProjectCard({ project, index }: Props) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.5, delay: index * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="h-full"
     >
       <Link
         to={`/projects/${project.id}`}
-        className="group block rounded-2xl overflow-hidden border border-border bg-bg-card hover:border-border-hover hover:shadow-lg hover:shadow-black/[0.04] transition-all duration-300"
+        className="group flex flex-col h-full rounded-2xl overflow-hidden border border-border bg-bg-card hover:border-border-hover hover:shadow-lg hover:shadow-black/[0.04] transition-all duration-300"
       >
-        <div className="aspect-video bg-bg-elevated overflow-hidden">
+        <div className={`${featured ? "h-64 sm:h-80" : "h-52 sm:h-56"} bg-bg-elevated overflow-hidden flex-shrink-0`}>
           {thumbnail ? (
             thumbnail.type === "video" ? (
               <video
@@ -30,7 +32,7 @@ export default function ProjectCard({ project, index }: Props) {
                 muted
                 loop
                 playsInline
-                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
                 onMouseOver={(e) => (e.target as HTMLVideoElement).play()}
                 onMouseOut={(e) => {
                   const v = e.target as HTMLVideoElement;
@@ -42,7 +44,7 @@ export default function ProjectCard({ project, index }: Props) {
               <img
                 src={thumbnail.url}
                 alt={project.title}
-                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
               />
             )
           ) : (
@@ -65,7 +67,7 @@ export default function ProjectCard({ project, index }: Props) {
             />
           </div>
 
-          <p className="text-sm text-text-secondary mt-2 line-clamp-2">
+          <p className="text-sm text-text-secondary mt-2">
             {project.shortDescription}
           </p>
 

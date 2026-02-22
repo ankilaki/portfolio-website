@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useProject } from "@/hooks/useFirestore";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import MediaGallery from "@/components/MediaGallery";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
@@ -111,34 +112,8 @@ export default function ProjectDetail() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease }}
-            className="mt-10 space-y-4"
           >
-            {project.media.map((item, i) => (
-              <div
-                key={i}
-                className="rounded-2xl overflow-hidden border border-border bg-bg-card"
-              >
-                {item.type === "video" ? (
-                  <video
-                    src={item.url}
-                    controls
-                    className="w-full"
-                    playsInline
-                  />
-                ) : (
-                  <img
-                    src={item.url}
-                    alt={item.caption || project.title}
-                    className="w-full"
-                  />
-                )}
-                {item.caption && (
-                  <p className="px-5 py-3 text-sm text-text-muted border-t border-border">
-                    {item.caption}
-                  </p>
-                )}
-              </div>
-            ))}
+            <MediaGallery media={project.media} title={project.title} />
           </motion.div>
         )}
 

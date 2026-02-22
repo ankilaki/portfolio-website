@@ -8,6 +8,7 @@ export interface Project {
   tags: string[];
   technologies: string[];
   media: MediaItem[];
+  thumbnailIndex?: number;
   featured: boolean;
   featuredOrder: number;
   createdAt: number;
@@ -20,11 +21,14 @@ export interface MediaItem {
   caption?: string;
 }
 
+export type ResumeSourceType = "pdf" | "google-doc";
+
 export interface Resume {
   id: string;
   title: string;
   domain: ResumeDomain;
   description: string;
+  sourceType: ResumeSourceType;
   fileUrl: string;
   fileName: string;
   updatedAt: number;

@@ -5,6 +5,8 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
+import Resumes from "./pages/Resumes";
+import ResumeView from "./pages/ResumeView";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -26,6 +28,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:id" element={<ProjectDetail />} />
+          <Route path="/resumes" element={<Resumes />} />
+          <Route path="/resumes/:id" element={<ResumeView />} />
         </Route>
         <Route
           path="/admin"

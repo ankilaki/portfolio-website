@@ -113,6 +113,28 @@ export async function deleteProject(id: string): Promise<void> {
   await deleteDoc(doc(db, "projects", id));
 }
 
+export function useResume(id: string | undefined) {
+  const [resume, setResume] = useState<Resume | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id || !db) {
+      setLoading(false);
+      return;
+    }
+    getDoc(doc(db, "resumes", id))
+      .then((snap) => {
+        if (snap.exists()) {
+          setResume({ id: snap.id, ...snap.data() } as Resume);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [id]);
+
+  return { resume, loading };
+}
+
 export async function addResume(
   resume: Omit<Resume, "id">
 ): Promise<string> {

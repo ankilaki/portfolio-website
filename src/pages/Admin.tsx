@@ -18,6 +18,9 @@ import {
   FileText,
   GripVertical,
   Save,
+  ChevronLeft,
+  ChevronRight,
+  ImageIcon,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,7 +36,8 @@ import {
 } from "@/hooks/useFirestore";
 import { uploadFile, getStoragePath } from "@/lib/storage";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import type { Project, Resume, MediaItem, ResumeDomain } from "@/types";
+import { extractGoogleDocId } from "@/lib/googleDocs";
+import type { Project, Resume, MediaItem, ResumeDomain, ResumeSourceType } from "@/types";
 
 const RESUME_DOMAINS: ResumeDomain[] = [
   "Robotics",
@@ -334,6 +338,7 @@ function ProjectForm({
     featuredOrder: project?.featuredOrder ?? 0,
   });
   const [media, setMedia] = useState<MediaItem[]>(project?.media ?? []);
+  const [thumbnailIndex, setThumbnailIndex] = useState<number>(project?.thumbnailIndex ?? 0);
   const [uploadingMedia, setUploadingMedia] = useState(false);
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -369,6 +374,7 @@ function ProjectForm({
       featured: form.featured,
       featuredOrder: form.featuredOrder,
       media,
+      thumbnailIndex,
       updatedAt: Date.now(),
     };
     try {
@@ -422,25 +428,98 @@ function ProjectForm({
         {/* Media */}
         <div>
           <label className="text-sm font-medium text-text-secondary mb-2 block">
-            Media (Images & Videos)
+            Media (Images & Videos) — drag order determines carousel order
           </label>
           <div className="flex flex-wrap gap-3">
             {media.map((item, i) => (
-              <div key={i} className="relative group w-24 h-24 rounded-xl overflow-hidden bg-bg-elevated border border-border">
+              <div
+                key={`${item.url}-${i}`}
+                className={`relative group w-28 h-28 rounded-xl overflow-hidden bg-bg-elevated border-2 transition-colors ${
+                  thumbnailIndex === i ? "border-accent" : "border-border"
+                }`}
+              >
                 {item.type === "image" ? (
                   <img src={item.url} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <video src={item.url} className="w-full h-full object-cover" />
                 )}
-                <button
-                  onClick={() => setMedia(media.filter((_, idx) => idx !== i))}
-                  className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X size={12} />
-                </button>
+
+                {/* Thumbnail badge */}
+                {thumbnailIndex === i && (
+                  <span className="absolute top-1 left-1 flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-accent text-white text-[10px] font-bold">
+                    <ImageIcon size={9} />
+                    Card
+                  </span>
+                )}
+
+                {/* Position badge (only when not thumbnail) */}
+                {thumbnailIndex !== i && (
+                  <span className="absolute top-1 left-1 w-5 h-5 rounded-md bg-black/60 text-white text-[10px] font-bold flex items-center justify-center">
+                    {i + 1}
+                  </span>
+                )}
+
+                {/* Overlay controls on hover */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        if (i === 0) return;
+                        const next = [...media];
+                        [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                        if (thumbnailIndex === i) setThumbnailIndex(i - 1);
+                        else if (thumbnailIndex === i - 1) setThumbnailIndex(i);
+                        setMedia(next);
+                      }}
+                      disabled={i === 0}
+                      className="p-1 rounded-md bg-white/20 hover:bg-white/40 disabled:opacity-30 transition-colors"
+                      title="Move left"
+                    >
+                      <ChevronLeft size={14} className="text-white" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (i === media.length - 1) return;
+                        const next = [...media];
+                        [next[i], next[i + 1]] = [next[i + 1], next[i]];
+                        if (thumbnailIndex === i) setThumbnailIndex(i + 1);
+                        else if (thumbnailIndex === i + 1) setThumbnailIndex(i);
+                        setMedia(next);
+                      }}
+                      disabled={i === media.length - 1}
+                      className="p-1 rounded-md bg-white/20 hover:bg-white/40 disabled:opacity-30 transition-colors"
+                      title="Move right"
+                    >
+                      <ChevronRight size={14} className="text-white" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {thumbnailIndex !== i && (
+                      <button
+                        onClick={() => setThumbnailIndex(i)}
+                        className="p-1 rounded-md bg-accent/80 hover:bg-accent transition-colors"
+                        title="Set as card thumbnail"
+                      >
+                        <ImageIcon size={14} className="text-white" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        setMedia(media.filter((_, idx) => idx !== i));
+                        if (thumbnailIndex >= i && thumbnailIndex > 0) {
+                          setThumbnailIndex(thumbnailIndex - 1);
+                        }
+                      }}
+                      className="p-1 rounded-md bg-red-500/80 hover:bg-red-500 transition-colors"
+                      title="Remove"
+                    >
+                      <X size={14} className="text-white" />
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
-            <label className="w-24 h-24 rounded-xl border-2 border-dashed border-border hover:border-accent/30 cursor-pointer flex items-center justify-center transition-colors">
+            <label className="w-28 h-28 rounded-xl border-2 border-dashed border-border hover:border-accent/30 cursor-pointer flex items-center justify-center transition-colors">
               <input type="file" multiple accept="image/*,video/*" onChange={handleMediaUpload} className="hidden" />
               {uploadingMedia ? <LoadingSpinner /> : <Upload size={20} className="text-text-muted" />}
             </label>
@@ -519,9 +598,18 @@ function ResumesManager() {
             className="rounded-xl border border-border bg-bg-card p-4 flex items-center gap-4"
           >
             <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-text">{resume.title}</h3>
-              <p className="text-sm text-text-muted mt-0.5">
-                {resume.domain} &middot; {resume.fileName}
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium text-text truncate">{resume.title}</h3>
+                <span className={`px-2 py-0.5 text-xs rounded-lg font-medium border ${
+                  resume.sourceType === "google-doc"
+                    ? "bg-blue-50 text-blue-600 border-blue-200"
+                    : "bg-emerald-50 text-emerald-600 border-emerald-200"
+                }`}>
+                  {resume.sourceType === "google-doc" ? "Google Doc" : "PDF"}
+                </span>
+              </div>
+              <p className="text-sm text-text-muted mt-0.5 truncate">
+                {resume.domain} &middot; {resume.sourceType === "google-doc" ? "Linked document" : resume.fileName}
               </p>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
@@ -563,6 +651,9 @@ function ResumeForm({
 }) {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [sourceType, setSourceType] = useState<ResumeSourceType>(
+    resume?.sourceType ?? "pdf"
+  );
   const [form, setForm] = useState({
     title: resume?.title ?? "",
     domain: resume?.domain ?? ("General" as ResumeDomain),
@@ -570,6 +661,10 @@ function ResumeForm({
     fileUrl: resume?.fileUrl ?? "",
     fileName: resume?.fileName ?? "",
   });
+  const [googleDocUrl, setGoogleDocUrl] = useState(
+    resume?.sourceType === "google-doc" ? resume.fileUrl : ""
+  );
+  const [googleDocError, setGoogleDocError] = useState("");
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -586,14 +681,38 @@ function ResumeForm({
     }
   };
 
+  const handleGoogleDocUrlChange = (url: string) => {
+    setGoogleDocUrl(url);
+    setGoogleDocError("");
+    if (url.trim() && !extractGoogleDocId(url.trim())) {
+      setGoogleDocError("Could not extract a valid Google Doc ID from this URL.");
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
+
+    let fileUrl = form.fileUrl;
+    let fileName = form.fileName;
+
+    if (sourceType === "google-doc") {
+      const trimmed = googleDocUrl.trim();
+      if (!extractGoogleDocId(trimmed)) {
+        setGoogleDocError("Invalid Google Doc URL.");
+        setSaving(false);
+        return;
+      }
+      fileUrl = trimmed;
+      fileName = form.title.trim() || "Google Doc";
+    }
+
     const data = {
       title: form.title.trim(),
       domain: form.domain,
       description: form.description.trim(),
-      fileUrl: form.fileUrl,
-      fileName: form.fileName,
+      sourceType,
+      fileUrl,
+      fileName,
       updatedAt: Date.now(),
     };
     try {
@@ -609,6 +728,12 @@ function ResumeForm({
       setSaving(false);
     }
   };
+
+  const isSaveDisabled =
+    saving ||
+    !form.title ||
+    (sourceType === "pdf" && !form.fileUrl) ||
+    (sourceType === "google-doc" && (!googleDocUrl.trim() || !!googleDocError));
 
   return (
     <motion.div
@@ -648,24 +773,63 @@ function ResumeForm({
           className={`${inputClass} resize-none`}
         />
 
+        {/* Source type toggle */}
         <div>
-          <label className="text-sm font-medium text-text-secondary mb-2 block">PDF File</label>
-          <div className="flex items-center gap-3">
-            <label className="px-4 py-2.5 rounded-xl text-sm cursor-pointer border border-border hover:border-accent/30 hover:text-accent transition-all duration-200 flex items-center gap-2 text-text-secondary">
-              <Upload size={16} />
-              {uploading ? "Uploading..." : "Upload PDF"}
-              <input type="file" accept=".pdf" onChange={handleFileUpload} className="hidden" />
-            </label>
-            {form.fileName && (
-              <span className="text-sm text-text-muted">{form.fileName}</span>
-            )}
+          <label className="text-sm font-medium text-text-secondary mb-2 block">Source Type</label>
+          <div className="flex gap-2">
+            {(["pdf", "google-doc"] as const).map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setSourceType(type)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  sourceType === type
+                    ? "bg-accent text-text-inverse"
+                    : "border border-border text-text-secondary hover:text-accent hover:border-accent/30"
+                }`}
+              >
+                {type === "pdf" ? "Upload PDF" : "Google Doc Link"}
+              </button>
+            ))}
           </div>
         </div>
+
+        {sourceType === "pdf" ? (
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-2 block">PDF File</label>
+            <div className="flex items-center gap-3">
+              <label className="px-4 py-2.5 rounded-xl text-sm cursor-pointer border border-border hover:border-accent/30 hover:text-accent transition-all duration-200 flex items-center gap-2 text-text-secondary">
+                <Upload size={16} />
+                {uploading ? "Uploading..." : "Upload PDF"}
+                <input type="file" accept=".pdf" onChange={handleFileUpload} className="hidden" />
+              </label>
+              {form.fileName && (
+                <span className="text-sm text-text-muted">{form.fileName}</span>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-2 block">Google Doc URL</label>
+            <input
+              placeholder="https://docs.google.com/document/d/.../edit?usp=sharing"
+              value={googleDocUrl}
+              onChange={(e) => handleGoogleDocUrlChange(e.target.value)}
+              className={inputClass}
+            />
+            {googleDocError && (
+              <p className="text-red-500 text-xs mt-1.5">{googleDocError}</p>
+            )}
+            {googleDocUrl.trim() && !googleDocError && (
+              <p className="text-emerald-600 text-xs mt-1.5">Valid Google Doc URL detected.</p>
+            )}
+          </div>
+        )}
 
         <div className="flex justify-end pt-2">
           <button
             onClick={handleSave}
-            disabled={saving || !form.title || !form.fileUrl}
+            disabled={isSaveDisabled}
             className="flex items-center gap-2 px-6 py-2.5 bg-accent text-text-inverse rounded-xl text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-50"
           >
             <Save size={16} />

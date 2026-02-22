@@ -1,9 +1,9 @@
 import { Github, Linkedin, Mail } from "lucide-react";
 
 const socialLinks = [
-  { icon: Github, href: "https://github.com", label: "GitHub" },
-  { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-  { icon: Mail, href: "mailto:hello@example.com", label: "Email" },
+  { icon: Github, href: "https://github.com/ankilaki", label: "GitHub" },
+  { icon: Linkedin, href: "https://www.linkedin.com/in/ankith-lakshman/", label: "LinkedIn" },
+  { icon: Mail, href: "mailto:ankilaki1020@gmail.com", label: "Email" },
 ];
 
 export default function Footer() {
@@ -13,7 +13,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
             <p className="text-lg font-semibold text-text">
-              Portfolio<span className="text-accent">.</span>
+              Ankith Lakshman<span className="text-accent">.</span>
             </p>
             <p className="text-sm text-text-muted mt-1.5">
               Crafting the future through code & robotics
@@ -38,7 +38,7 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-border text-center">
           <p className="text-xs text-text-muted">
-            &copy; {new Date().getFullYear()} All rights reserved. Built with
+            &copy; {new Date().getFullYear()} Ankith Lakshman. All rights reserved. Built with
             React & Firebase.
           </p>
         </div>

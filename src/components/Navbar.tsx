@@ -1,27 +1,16 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/projects", label: "Projects" },
-  { to: "/#resumes", label: "Resume" },
+  { to: "/resumes", label: "Resume" },
 ];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const location = useLocation();
-
-  const handleNavClick = (to: string) => {
-    setMobileOpen(false);
-    if (to.startsWith("/#")) {
-      const id = to.slice(2);
-      if (location.pathname === "/") {
-        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  };
 
   return (
     <motion.nav
@@ -32,7 +21,7 @@ export default function Navbar() {
     >
       <div className="glass-strong rounded-2xl px-6 py-3.5 flex items-center justify-between">
         <Link to="/" className="text-lg font-semibold tracking-tight text-text">
-          Portfolio<span className="text-accent">.</span>
+          Ankith Lakshman's <span className="text-accent">Portfolio</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-1">
@@ -40,7 +29,7 @@ export default function Navbar() {
             <Link
               key={link.to}
               to={link.to}
-              onClick={() => handleNavClick(link.to)}
+              onClick={() => setMobileOpen(false)}
               className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-accent rounded-xl transition-colors duration-200"
             >
               {link.label}
@@ -70,7 +59,7 @@ export default function Navbar() {
               <Link
                 key={link.to}
                 to={link.to}
-                onClick={() => handleNavClick(link.to)}
+                onClick={() => setMobileOpen(false)}
                 className="block px-4 py-3 text-sm font-medium text-text-secondary hover:text-accent rounded-xl transition-colors"
               >
                 {link.label}
