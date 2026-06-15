@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -33,6 +34,7 @@ const domainIcons: Record<ResumeDomain, typeof Cpu> = {
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 export default function Home() {
+  const heroRef = useRef<HTMLElement>(null);
   const { projects: featuredProjects, loading: projectsLoading } =
     useProjects(true);
   const { resumes, loading: resumesLoading } = useResumes();
@@ -44,8 +46,11 @@ export default function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="relative min-h-[100svh] flex flex-col items-center justify-center px-6 pt-12 pb-24 overflow-hidden">
-        <HeroBackground />
+      <section
+        ref={heroRef}
+        className="relative min-h-[100svh] flex flex-col items-center justify-center px-6 pt-12 pb-24 overflow-hidden"
+      >
+        <HeroBackground containerRef={heroRef} />
 
         <div className="relative z-10 w-full max-w-[980px] mx-auto text-center">
           <motion.div
