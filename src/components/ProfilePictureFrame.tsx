@@ -68,7 +68,7 @@ export default function ProfilePictureFrame({
   return (
     <div
       ref={containerRef}
-      className={`relative flex-shrink-0 rounded-full overflow-hidden border-2 border-border shadow-lg ${className} ${
+      className={`relative flex-shrink-0 rounded-full overflow-hidden ${className} ${
         editable ? (dragging ? "cursor-grabbing" : "cursor-grab") : ""
       }`}
       onPointerDown={handlePointerDown}

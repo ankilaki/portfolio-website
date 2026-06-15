@@ -58,7 +58,7 @@ export default function MediaGallery({ media, title }: Props) {
     return (
       <div className="mt-10 max-w-3xl mx-auto">
         <div className="rounded-2xl overflow-hidden border border-border bg-bg-card">
-          <div className="relative max-h-[480px] flex items-center justify-center bg-black/[.03]">
+          <div className="relative max-h-[480px] flex items-center justify-center bg-black">
             <MediaRenderer item={item} title={title} constrain />
           </div>
           {item.caption && (
@@ -74,9 +74,9 @@ export default function MediaGallery({ media, title }: Props) {
   return (
     <>
       <div ref={containerRef} className="mt-10 max-w-3xl mx-auto">
-        <div className="rounded-2xl overflow-hidden border border-border bg-bg-card shadow-sm">
+        <div className="rounded-2xl overflow-hidden border border-border bg-bg-card">
           {/* Main display */}
-          <div className="relative max-h-[480px] h-[56vw] md:h-[480px] bg-black/[.03] overflow-hidden group">
+          <div className="relative max-h-[480px] h-[56vw] md:h-[480px] bg-black overflow-hidden group">
             <AnimatePresence initial={false} custom={direction} mode="popLayout">
               <motion.div
                 key={current}
@@ -102,14 +102,14 @@ export default function MediaGallery({ media, title }: Props) {
             {/* Nav arrows */}
             <button
               onClick={prev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full glass-strong flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer hover:scale-105 z-10"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer hover:bg-white/20 z-10"
               aria-label="Previous"
             >
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={next}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full glass-strong flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer hover:scale-105 z-10"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer hover:bg-white/20 z-10"
               aria-label="Next"
             >
               <ChevronRight size={18} />
@@ -118,14 +118,14 @@ export default function MediaGallery({ media, title }: Props) {
             {/* Expand button */}
             <button
               onClick={() => setLightbox(true)}
-              className="absolute top-3 right-3 w-8 h-8 rounded-lg glass-strong flex items-center justify-center opacity-0 group-hover:opacity-70 hover:!opacity-100 transition-opacity duration-200 cursor-pointer z-10"
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-70 hover:!opacity-100 transition-opacity duration-200 cursor-pointer z-10"
               aria-label="Expand"
             >
               <Maximize2 size={14} />
             </button>
 
             {/* Counter pill */}
-            <div className="absolute bottom-3 right-3 px-3 py-1 rounded-full glass-strong text-xs font-medium text-text-secondary z-10">
+            <div className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-medium text-white/80 z-10">
               {current + 1} / {count}
             </div>
           </div>
@@ -154,8 +154,8 @@ export default function MediaGallery({ media, title }: Props) {
                 onClick={() => go(i)}
                 className={`relative shrink-0 w-16 h-11 rounded-lg overflow-hidden transition-all duration-200 cursor-pointer ${
                   i === current
-                    ? "ring-2 ring-accent ring-offset-1 ring-offset-bg-card opacity-100"
-                    : "opacity-50 hover:opacity-80"
+                    ? "ring-2 ring-accent ring-offset-2 ring-offset-bg-card opacity-100"
+                    : "opacity-40 hover:opacity-70"
                 }`}
                 aria-label={`Go to media ${i + 1}`}
               >

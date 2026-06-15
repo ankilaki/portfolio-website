@@ -43,7 +43,7 @@ export default function GithubSourceLinks({ urls, variant = "inline" }: Props) {
           href={urls[0]}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-6 py-3 rounded-xl font-medium text-sm border border-border hover:border-accent/30 hover:bg-accent-glow hover:text-accent transition-all duration-200 flex items-center gap-2"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium border border-border text-text hover:border-border-hover hover:bg-bg-card transition-colors"
         >
           <Github size={18} />
           {label}
@@ -56,7 +56,7 @@ export default function GithubSourceLinks({ urls, variant = "inline" }: Props) {
         href={urls[0]}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors duration-200"
+        className="flex items-center gap-2 text-sm text-accent hover:opacity-80 transition-opacity"
       >
         <Github size={14} />
         {label}
@@ -67,8 +67,8 @@ export default function GithubSourceLinks({ urls, variant = "inline" }: Props) {
 
   const triggerClass =
     variant === "button"
-      ? "px-6 py-3 rounded-xl font-medium text-sm border border-border hover:border-accent/30 hover:bg-accent-glow hover:text-accent transition-all duration-200 flex items-center gap-2"
-      : "flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors duration-200";
+      ? "inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium border border-border text-text hover:border-border-hover hover:bg-bg-card transition-colors"
+      : "flex items-center gap-2 text-sm text-accent hover:opacity-80 transition-opacity";
 
   return (
     <div ref={containerRef} className="relative">
@@ -90,9 +90,7 @@ export default function GithubSourceLinks({ urls, variant = "inline" }: Props) {
       {open && (
         <div
           role="menu"
-          className={`absolute z-20 min-w-[220px] rounded-xl border border-border bg-bg-card shadow-lg py-1 ${
-            variant === "button" ? "left-0 top-full mt-2" : "left-0 top-full mt-2"
-          }`}
+          className="absolute z-20 min-w-[220px] rounded-2xl border border-border bg-bg-card shadow-2xl py-1.5 left-0 top-full mt-2"
         >
           {urls.map((url) => (
             <a
@@ -102,7 +100,7 @@ export default function GithubSourceLinks({ urls, variant = "inline" }: Props) {
               rel="noopener noreferrer"
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-accent hover:bg-accent-glow transition-colors"
+              className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text hover:bg-bg-card-hover transition-colors"
             >
               <span className="font-medium">{getGithubRepoLabel(url)}</span>
               <ExternalLink size={14} className="flex-shrink-0 opacity-60" />

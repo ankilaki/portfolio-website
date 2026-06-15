@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
@@ -11,26 +11,45 @@ const navLinks = [
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   return (
-    <motion.nav
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl"
+    <header
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
+        scrolled ? "glass" : "bg-transparent"
+      }`}
     >
-      <div className="glass-strong rounded-2xl px-6 py-3.5 flex items-center justify-between">
-        <Link to="/" className="text-lg font-semibold tracking-tight text-text">
-          Ankith Lakshman's <span className="text-accent">Portfolio</span>
+      <nav className="max-w-[980px] mx-auto px-6 h-12 flex items-center justify-between">
+        <Link
+          to="/"
+          className="text-[13px] font-medium tracking-tight text-text hover:text-text-secondary transition-colors"
+        >
+          Ankith Lakshman
         </Link>
 
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              onClick={() => setMobileOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-accent rounded-xl transition-colors duration-200"
+              className={`text-[12px] font-normal transition-colors duration-200 ${
+                location.pathname === link.to ||
+                (link.to !== "/" && location.pathname.startsWith(link.to))
+                  ? "text-text"
+                  : "text-text-secondary hover:text-text"
+              }`}
             >
               {link.label}
             </Link>
@@ -39,35 +58,37 @@ export default function Navbar() {
 
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden p-2 rounded-xl text-text-secondary hover:text-accent transition-colors"
+          className="md:hidden p-1.5 text-text-secondary hover:text-text transition-colors"
           aria-label="Toggle menu"
         >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
-      </div>
+      </nav>
 
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ duration: 0.2 }}
-            className="glass-strong rounded-2xl mt-2 px-4 py-3 md:hidden"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="md:hidden overflow-hidden glass border-t-0"
           >
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 text-sm font-medium text-text-secondary hover:text-accent rounded-xl transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+            <div className="px-6 py-4 flex flex-col gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setMobileOpen(false)}
+                  className="py-3 text-[15px] text-text-secondary hover:text-text transition-colors border-b border-border last:border-0"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </header>
   );
 }

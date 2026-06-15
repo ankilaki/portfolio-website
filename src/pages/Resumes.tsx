@@ -29,76 +29,83 @@ export default function Resumes() {
   const { resumes, loading } = useResumes();
 
   return (
-    <section className="px-6 pt-32 pb-24 max-w-6xl mx-auto">
+    <section className="px-6 pt-24 pb-32 max-w-[980px] mx-auto">
       <SectionHeading
-        title="Resumes"
-        subtitle="Download a resume tailored to the domain you're interested in."
+        eyebrow="Resume"
+        title="Choose your focus."
+        subtitle="Each version highlights the experience most relevant to that domain."
+        align="center"
       />
 
       {loading ? (
         <LoadingSpinner />
       ) : resumes.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6">
+        <div className="space-y-3">
           {resumes.map((resume, i) => {
             const Icon = domainIcons[resume.domain] || FileText;
 
             return (
-              <motion.div
+              <motion.article
                 key={resume.id}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08, ease }}
-                className="rounded-2xl border border-border bg-bg-card p-8 hover:border-border-hover hover:shadow-md hover:shadow-black/[0.03] transition-all duration-300 group"
+                transition={{ duration: 0.6, delay: i * 0.06, ease }}
+                className="rounded-2xl bg-bg-card border border-border hover:border-border-hover transition-colors duration-300"
               >
-                <Link
-                  to={`/resumes/${resume.id}`}
-                  className="block cursor-pointer"
-                >
-                  <div className="w-14 h-14 rounded-xl bg-accent-muted flex items-center justify-center mb-6">
-                    <Icon size={26} className="text-accent" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-6 p-6 md:p-8">
+                  <div className="flex items-start gap-5 flex-1 min-w-0">
+                    <div className="w-11 h-11 rounded-xl bg-accent-muted flex items-center justify-center flex-shrink-0">
+                      <Icon size={20} className="text-accent" />
+                    </div>
+                    <div className="min-w-0">
+                      <Link
+                        to={`/resumes/${resume.id}`}
+                        className="block group/link"
+                      >
+                        <h3 className="text-lg font-semibold text-text group-hover/link:text-accent transition-colors">
+                          {resume.title}
+                        </h3>
+                        <p className="text-sm text-text-muted mt-0.5">
+                          {resume.domain}
+                        </p>
+                        {resume.description && (
+                          <p className="text-sm text-text-secondary mt-2">
+                            {resume.description}
+                          </p>
+                        )}
+                      </Link>
+                    </div>
                   </div>
 
-                  <h3 className="font-semibold text-text">{resume.title}</h3>
-                  <p className="text-sm text-text-muted mt-1">
-                    {resume.domain}
-                  </p>
-                  {resume.description && (
-                    <p className="text-sm text-text-secondary mt-3">
-                      {resume.description}
-                    </p>
-                  )}
-                </Link>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link
-                    to={`/resumes/${resume.id}`}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-text text-text-inverse rounded-xl hover:bg-text/90 transition-colors duration-200"
-                  >
-                    <Eye size={14} />
-                    View
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      downloadResume(resume);
-                    }}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-accent border border-accent/20 rounded-xl hover:bg-accent hover:text-text-inverse transition-all duration-200 cursor-pointer"
-                  >
-                    <Download size={14} />
-                    Download
-                  </button>
+                  <div className="flex items-center gap-3 sm:flex-shrink-0 pl-16 sm:pl-0">
+                    <Link
+                      to={`/resumes/${resume.id}`}
+                      className="btn-primary text-[13px] py-2.5 px-5"
+                    >
+                      <Eye size={14} />
+                      View
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        downloadResume(resume);
+                      }}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-medium text-accent rounded-full border border-accent/30 hover:bg-accent-muted transition-colors cursor-pointer"
+                    >
+                      <Download size={14} />
+                      Download
+                    </button>
+                  </div>
                 </div>
-              </motion.div>
+              </motion.article>
             );
           })}
         </div>
       ) : (
-        <div className="text-center py-16 rounded-2xl border border-border border-dashed">
-          <p className="text-text-muted">
-            Resumes coming soon. Stay tuned.
-          </p>
+        <div className="text-center py-20 rounded-3xl bg-bg-card/50 border border-border">
+          <p className="text-text-muted">Resumes coming soon.</p>
         </div>
       )}
     </section>

@@ -27,12 +27,9 @@ export default function ProjectDetail() {
 
   if (!project) {
     return (
-      <div className="min-h-screen pt-24 flex flex-col items-center justify-center gap-4">
-        <p className="text-text-muted text-lg">Project not found</p>
-        <Link
-          to="/"
-          className="px-5 py-2.5 bg-accent text-text-inverse rounded-xl text-sm font-medium hover:bg-accent-hover transition-colors"
-        >
+      <div className="min-h-screen pt-24 flex flex-col items-center justify-center gap-6 px-6">
+        <p className="text-text-secondary text-xl">Project not found.</p>
+        <Link to="/" className="btn-primary">
           Go Home
         </Link>
       </div>
@@ -45,34 +42,31 @@ export default function ProjectDetail() {
   });
 
   return (
-    <div className="min-h-screen pt-28 pb-24 px-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Back */}
+    <div className="min-h-screen pt-20 pb-32 px-6">
+      <div className="max-w-[720px] mx-auto">
         <motion.div
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, ease }}
         >
           <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-accent transition-colors duration-200 mb-10"
+            to="/projects"
+            className="inline-flex items-center gap-2 text-sm text-accent hover:opacity-80 transition-opacity mb-12"
           >
-            <ArrowLeft size={16} />
-            Back to Projects
+            <ArrowLeft size={15} />
+            Projects
           </Link>
         </motion.div>
 
-        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease }}
+          transition={{ duration: 0.6, ease }}
         >
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-text">
-            {project.title}
-          </h1>
+          <p className="eyebrow mb-4">Project</p>
+          <h1 className="section-heading text-text">{project.title}</h1>
 
-          <div className="flex flex-wrap items-center gap-5 mt-5">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-6">
             <span className="flex items-center gap-2 text-sm text-text-muted">
               <Calendar size={14} />
               {createdDate}
@@ -85,7 +79,7 @@ export default function ProjectDetail() {
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors duration-200"
+                className="flex items-center gap-2 text-sm text-accent hover:opacity-80 transition-opacity"
               >
                 <ExternalLink size={14} />
                 Live Demo
@@ -94,43 +88,44 @@ export default function ProjectDetail() {
           </div>
         </motion.div>
 
-        {/* Media */}
         {project.media.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1, ease }}
+            transition={{ duration: 0.6, delay: 0.1, ease }}
           >
             <MediaGallery media={project.media} title={project.title} />
           </motion.div>
         )}
 
-        {/* Description */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2, ease }}
-          className="mt-12"
+          transition={{ duration: 0.6, delay: 0.2, ease }}
+          className="mt-16"
         >
-          <h2 className="text-xl font-semibold mb-4 text-text">About This Project</h2>
-          <div className="text-text-secondary leading-relaxed whitespace-pre-line">
+          <h2 className="text-xl font-semibold mb-5 text-text tracking-tight">
+            Overview
+          </h2>
+          <div className="text-[17px] text-text-secondary leading-[1.7] whitespace-pre-line">
             {project.description}
           </div>
         </motion.div>
 
-        {/* Technologies */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3, ease }}
-          className="mt-12"
+          transition={{ duration: 0.6, delay: 0.3, ease }}
+          className="mt-16"
         >
-          <h2 className="text-xl font-semibold mb-5 text-text">Technologies & Frameworks</h2>
+          <h2 className="text-xl font-semibold mb-5 text-text tracking-tight">
+            Technologies
+          </h2>
           <div className="flex flex-wrap gap-2">
             {project.technologies.map((tech) => (
               <span
                 key={tech}
-                className="px-4 py-2 text-sm font-medium rounded-xl border border-border bg-bg-card text-accent"
+                className="px-4 py-2 text-sm rounded-full bg-bg-card border border-border text-text-secondary"
               >
                 {tech}
               </span>
@@ -138,37 +133,35 @@ export default function ProjectDetail() {
           </div>
         </motion.div>
 
-        {/* Tags */}
         {project.tags.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4, ease }}
-            className="mt-10"
+            transition={{ duration: 0.6, delay: 0.4, ease }}
+            className="mt-12"
           >
-            <h2 className="text-xl font-semibold mb-5 text-text flex items-center gap-2">
-              <Tag size={18} />
+            <h2 className="text-xl font-semibold mb-5 text-text tracking-tight flex items-center gap-2">
+              <Tag size={18} className="text-text-muted" />
               Keywords
             </h2>
             <div className="flex flex-wrap gap-2">
               {project.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-3 py-1.5 text-sm bg-bg-card text-text-secondary rounded-lg border border-border"
+                  className="px-3 py-1.5 text-sm text-text-muted rounded-full bg-bg-elevated"
                 >
-                  #{tag}
+                  {tag}
                 </span>
               ))}
             </div>
           </motion.div>
         )}
 
-        {/* Action Links */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5, ease }}
-          className="mt-14 flex flex-wrap gap-4"
+          transition={{ duration: 0.6, delay: 0.5, ease }}
+          className="mt-16 pt-8 border-t border-border flex flex-wrap gap-4"
         >
           <GithubSourceLinks urls={project.githubUrls ?? []} variant="button" />
           {project.liveUrl && (
@@ -176,9 +169,9 @@ export default function ProjectDetail() {
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-3 bg-text text-text-inverse rounded-xl font-medium text-sm hover:bg-text/90 transition-colors duration-200 flex items-center gap-2 shadow-sm"
+              className="btn-primary"
             >
-              <ExternalLink size={18} />
+              <ExternalLink size={16} />
               Live Demo
             </a>
           )}

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowDown,
   ArrowRight,
+  ChevronRight,
   Download,
   ExternalLink,
   Eye,
@@ -19,6 +19,7 @@ import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ProfilePictureFrame from "@/components/ProfilePictureFrame";
+import HeroBackground from "@/components/HeroBackground";
 import type { ResumeDomain } from "@/types";
 
 const domainIcons: Record<ResumeDomain, typeof Cpu> = {
@@ -42,278 +43,245 @@ export default function Home() {
 
   return (
     <>
-      {/* ─── Hero ─── */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
-        {/* Ambient glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-accent/[0.06] rounded-full blur-[120px]" />
-          <div className="absolute bottom-1/4 right-1/5 w-[400px] h-[400px] bg-emerald-300/[0.05] rounded-full blur-[100px]" />
-        </div>
+      {/* Hero */}
+      <section className="relative min-h-[100svh] flex flex-col items-center justify-center px-6 pt-12 pb-24 overflow-hidden">
+        <HeroBackground />
 
-        {/* Grid pattern */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.035]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(0,0,0,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.06) 1px, transparent 1px)",
-            backgroundSize: "64px 64px",
-          }}
-        />
-
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16 max-w-5xl w-full">
-          {/* Profile Photo */}
+        <div className="relative z-10 w-full max-w-[980px] mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, ease }}
-            className="flex-shrink-0"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease }}
+            className="flex justify-center mb-10"
           >
             <div className="relative">
+              <div className="absolute inset-0 rounded-full ring-1 ring-white/15 shadow-[0_0_80px_rgba(41,151,255,0.12)]" />
               <ProfilePictureFrame
                 src={profilePictureUrl}
                 alt="Ankith Lakshman"
                 positionX={profilePosition.x}
                 positionY={profilePosition.y}
-                className="w-44 h-44 sm:w-52 sm:h-52 md:w-64 md:h-64 lg:w-72 lg:h-72 shadow-xl shadow-black/[0.06]"
+                className="relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 ring-1 ring-white/20"
               />
-              <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 w-7 h-7 md:w-8 md:h-8 rounded-full bg-accent border-[3px] border-bg" />
             </div>
           </motion.div>
 
-          {/* Text Content */}
-          <div className="text-center md:text-left">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1, ease }}
-            >
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-border bg-bg-elevated text-sm text-text-secondary mb-7 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                Software &middot; AI &middot; Robotics Engineer
-              </div>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.15, ease }}
-              className="text-5xl sm:text-6xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.08]"
-            >
-              Ankith{" "}
-              <span className="gradient-text">Lakshman</span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.25, ease }}
-              className="mt-6 text-lg text-text-secondary max-w-lg leading-relaxed"
-            >
-              I design and build software, AI models, and robotic systems that
-              push the boundaries of what&apos;s possible.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.35, ease }}
-              className="mt-9 flex flex-wrap items-center justify-center md:justify-start gap-4"
-            >
-              <Link
-                to="/resumes"
-                className="px-7 py-3.5 bg-text text-text-inverse rounded-xl font-medium text-sm hover:bg-text/90 transition-colors duration-200 shadow-sm"
-              >
-                View Resumes
-              </Link>
-              <a
-                href="#projects"
-                className="px-7 py-3.5 rounded-xl font-medium text-sm border border-border text-text-secondary hover:text-accent hover:border-accent/30 hover:bg-accent-glow transition-all duration-200"
-              >
-                View Projects
-              </a>
-            </motion.div>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 1 }}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.05, ease }}
+            className="eyebrow mb-6"
           >
-            <ArrowDown size={20} className="text-text-muted" />
+            Software · AI · Robotics
+          </motion.p>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease }}
+            className="display-heading text-text"
+          >
+            Ankith{" "}
+            <span className="gradient-text">Lakshman</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease }}
+            className="mt-6 text-xl md:text-2xl text-text-secondary max-w-xl mx-auto leading-relaxed font-normal"
+          >
+            Building software, intelligent systems, and robots that solve real problems.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease }}
+            className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-4"
+          >
+            <Link to="/resumes" className="btn-primary">
+              View Resumes
+            </Link>
+            <a href="#projects" className="btn-secondary">
+              Explore Projects
+              <ChevronRight size={16} />
+            </a>
           </motion.div>
-        </motion.div>
+        </div>
       </section>
 
-      {/* ─── Featured Projects ─── */}
-      <section id="projects" className="px-6 py-24 max-w-6xl mx-auto scroll-mt-24">
-        <SectionHeading
-          title="Featured Projects"
-          subtitle="A selection of my most impactful work across software, AI, and robotics."
-        />
+      {/* Featured Projects */}
+      <section id="projects" className="scroll-mt-12">
+        <div className="divider mb-24" />
 
-        {projectsLoading ? (
-          <LoadingSpinner />
-        ) : featuredSlice.length === 3 ? (
-          <>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-              <div className="lg:col-span-2">
-                <ProjectCard project={featuredSlice[0]} index={0} featured />
-              </div>
-              <div className="flex flex-col gap-5">
-                <div className="flex-1">
-                  <ProjectCard project={featuredSlice[1]} index={1} />
+        <div className="px-6 pb-32 max-w-[980px] mx-auto">
+          <SectionHeading
+            eyebrow="Work"
+            title="Featured Projects"
+            subtitle="Selected engineering work across software, machine learning, and robotics."
+            align="center"
+          />
+
+          {projectsLoading ? (
+            <LoadingSpinner />
+          ) : featuredSlice.length === 3 ? (
+            <>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5">
+                <div className="lg:col-span-7">
+                  <ProjectCard project={featuredSlice[0]} index={0} featured />
                 </div>
-                <div className="flex-1">
+                <div className="lg:col-span-5 flex flex-col gap-4 md:gap-5">
+                  <ProjectCard project={featuredSlice[1]} index={1} />
                   <ProjectCard project={featuredSlice[2]} index={2} />
                 </div>
               </div>
-            </div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-10 text-center"
-            >
-              <Link
-                to="/projects"
-                className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mt-14 text-center"
               >
-                View All Projects
-                <ArrowRight size={14} />
-              </Link>
-            </motion.div>
-          </>
-        ) : featuredSlice.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {featuredSlice.map((project, i) => (
-                <ProjectCard key={project.id} project={project} index={i} />
-              ))}
-            </div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-10 text-center"
-            >
-              <Link
-                to="/projects"
-                className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+                <Link to="/projects" className="link-arrow">
+                  View all projects
+                  <ArrowRight size={14} />
+                </Link>
+              </motion.div>
+            </>
+          ) : featuredSlice.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                {featuredSlice.map((project, i) => (
+                  <ProjectCard key={project.id} project={project} index={i} />
+                ))}
+              </div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mt-14 text-center"
               >
-                View All Projects
-                <ArrowRight size={14} />
-              </Link>
-            </motion.div>
-          </>
-        ) : (
-          <div className="text-center py-16 rounded-2xl border border-border border-dashed">
-            <p className="text-text-muted">
-              No featured projects yet. Check back soon.
-            </p>
-          </div>
-        )}
+                <Link to="/projects" className="link-arrow">
+                  View all projects
+                  <ArrowRight size={14} />
+                </Link>
+              </motion.div>
+            </>
+          ) : (
+            <div className="text-center py-20 rounded-3xl bg-bg-card/50 border border-border">
+              <p className="text-text-muted">
+                No featured projects yet. Check back soon.
+              </p>
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* ─── Resumes ─── */}
-      <section id="resumes" className="px-6 py-24 max-w-6xl mx-auto scroll-mt-24">
-        <SectionHeading
-          title="Resume"
-          subtitle="Download a resume tailored to the domain you're interested in."
-        />
+      {/* Resumes */}
+      <section id="resumes" className="scroll-mt-12 bg-bg-elevated">
+        <div className="divider" />
 
-        {resumesLoading ? (
-          <LoadingSpinner />
-        ) : resumes.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {resumes.map((resume, i) => {
-                const Icon = domainIcons[resume.domain] || FileText;
+        <div className="px-6 py-32 max-w-[980px] mx-auto">
+          <SectionHeading
+            eyebrow="Resume"
+            title="Tailored for every domain."
+            subtitle="Download a version focused on the role you're hiring for."
+            align="center"
+          />
 
-                return (
-                  <motion.div
-                    key={resume.id}
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.08, ease }}
-                    className="rounded-2xl border border-border bg-bg-card p-6 hover:border-border-hover hover:shadow-md hover:shadow-black/[0.03] transition-all duration-300 group"
-                  >
-                    <Link
-                      to={`/resumes/${resume.id}`}
-                      className="block cursor-pointer"
+          {resumesLoading ? (
+            <LoadingSpinner />
+          ) : resumes.length > 0 ? (
+            <>
+              <div className="space-y-3">
+                {resumes.map((resume, i) => {
+                  const Icon = domainIcons[resume.domain] || FileText;
+
+                  return (
+                    <motion.article
+                      key={resume.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: i * 0.06, ease }}
+                      className="group rounded-2xl bg-bg-card border border-border hover:border-border-hover transition-colors duration-300"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-accent-muted flex items-center justify-center mb-5">
-                        <Icon size={22} className="text-accent" />
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-6 p-6 md:p-8">
+                        <div className="flex items-start gap-5 flex-1 min-w-0">
+                          <div className="w-11 h-11 rounded-xl bg-accent-muted flex items-center justify-center flex-shrink-0">
+                            <Icon size={20} className="text-accent" />
+                          </div>
+                          <div className="min-w-0">
+                            <Link
+                              to={`/resumes/${resume.id}`}
+                              className="block group/link"
+                            >
+                              <h3 className="text-lg font-semibold text-text group-hover/link:text-accent transition-colors">
+                                {resume.title}
+                              </h3>
+                              <p className="text-sm text-text-muted mt-0.5">
+                                {resume.domain}
+                              </p>
+                              {resume.description && (
+                                <p className="text-sm text-text-secondary mt-2 line-clamp-2">
+                                  {resume.description}
+                                </p>
+                              )}
+                            </Link>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 sm:flex-shrink-0 pl-16 sm:pl-0">
+                          <Link
+                            to={`/resumes/${resume.id}`}
+                            className="btn-primary text-[13px] py-2.5 px-5"
+                          >
+                            <Eye size={14} />
+                            View
+                          </Link>
+                          <a
+                            href={
+                              resume.sourceType === "google-doc"
+                                ? getGoogleDocExportPdfUrl(resume.fileUrl) ??
+                                  resume.fileUrl
+                                : resume.fileUrl
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-medium text-accent rounded-full border border-accent/30 hover:bg-accent-muted transition-colors"
+                          >
+                            <Download size={14} />
+                            PDF
+                            <ExternalLink size={11} className="opacity-60" />
+                          </a>
+                        </div>
                       </div>
+                    </motion.article>
+                  );
+                })}
+              </div>
 
-                      <h3 className="font-semibold text-text">{resume.title}</h3>
-                      <p className="text-sm text-text-muted mt-1">{resume.domain}</p>
-                      {resume.description && (
-                        <p className="text-sm text-text-secondary mt-3">
-                          {resume.description}
-                        </p>
-                      )}
-                    </Link>
-
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      <Link
-                        to={`/resumes/${resume.id}`}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-text text-text-inverse rounded-xl hover:bg-text/90 transition-colors duration-200"
-                      >
-                        <Eye size={14} />
-                        View
-                      </Link>
-                      <a
-                        href={
-                          resume.sourceType === "google-doc"
-                            ? getGoogleDocExportPdfUrl(resume.fileUrl) ?? resume.fileUrl
-                            : resume.fileUrl
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-accent border border-accent/20 rounded-xl hover:bg-accent hover:text-text-inverse transition-all duration-200"
-                      >
-                        <Download size={14} />
-                        Download
-                        <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-10 text-center"
-            >
-              <Link
-                to="/resumes"
-                className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mt-14 text-center"
               >
-                View All Resumes
-                <ArrowRight size={14} />
-              </Link>
-            </motion.div>
-          </>
-        ) : (
-          <div className="text-center py-16 rounded-2xl border border-border border-dashed">
-            <p className="text-text-muted">
-              Resumes coming soon. Stay tuned.
-            </p>
-          </div>
-        )}
+                <Link to="/resumes" className="link-arrow">
+                  View all resumes
+                  <ArrowRight size={14} />
+                </Link>
+              </motion.div>
+            </>
+          ) : (
+            <div className="text-center py-20 rounded-3xl bg-bg-card/50 border border-border">
+              <p className="text-text-muted">Resumes coming soon.</p>
+            </div>
+          )}
+        </div>
       </section>
     </>
   );
