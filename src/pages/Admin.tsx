@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -21,6 +21,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ImageIcon,
+  User,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,14 +34,21 @@ import {
   addResume,
   updateResume,
   deleteResume,
+  useSiteSettings,
+  updateSiteSettings,
 } from "@/hooks/useFirestore";
-import { uploadFile, getStoragePath } from "@/lib/storage";
+import { uploadFile, getStoragePath, uploadProfileFavicon } from "@/lib/storage";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { extractGoogleDocId } from "@/lib/googleDocs";
 import {
   formatGithubUrlsForInput,
   parseGithubUrlsInput,
 } from "@/lib/githubUrls";
+import {
+  DEFAULT_PROFILE_POSITION,
+  getProfilePosition,
+} from "@/lib/profilePicture";
+import ProfilePictureFrame from "@/components/ProfilePictureFrame";
 import type { Project, Resume, MediaItem, ResumeDomain, ResumeSourceType } from "@/types";
 
 const RESUME_DOMAINS: ResumeDomain[] = [
@@ -54,9 +62,32 @@ const RESUME_DOMAINS: ResumeDomain[] = [
 const inputClass =
   "w-full px-4 py-3 rounded-xl bg-bg-input border border-border focus:border-accent/50 focus:ring-1 focus:ring-accent/20 outline-none text-sm text-text transition-all placeholder:text-text-muted";
 
+function firebaseErrorMessage(err: unknown, fallback: string): string {
+  const code = (err as { code?: string })?.code;
+  if (code === "permission-denied" || code === "storage/unauthorized") {
+    return "Permission denied. Sign in again or check Firebase security rules.";
+  }
+  if (code === "storage/unauthenticated") {
+    return "You must be signed in to upload files.";
+  }
+  if (code === "storage/canceled") {
+    return "Upload was canceled.";
+  }
+  if (code === "storage/quota-exceeded") {
+    return "Storage quota exceeded.";
+  }
+  const message = (err as { message?: string })?.message;
+  return message || fallback;
+}
+
+function isImageFile(file: File): boolean {
+  if (file.type.startsWith("image/")) return true;
+  return /\.(jpe?g|png|gif|webp|bmp|svg|avif|heic|heif)$/i.test(file.name);
+}
+
 export default function Admin() {
   const { loading: authLoading, isAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState<"projects" | "resumes">("projects");
+  const [activeTab, setActiveTab] = useState<"projects" | "resumes" | "site">("projects");
 
   if (authLoading) {
     return (
@@ -85,7 +116,7 @@ export default function Admin() {
         </div>
 
         <div className="flex gap-2 mb-10">
-          {(["projects", "resumes"] as const).map((tab) => (
+          {(["projects", "resumes", "site"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -100,10 +131,15 @@ export default function Admin() {
                   <FolderOpen size={16} />
                   Projects
                 </span>
-              ) : (
+              ) : tab === "resumes" ? (
                 <span className="flex items-center gap-2">
                   <FileText size={16} />
                   Resumes
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <User size={16} />
+                  Site
                 </span>
               )}
             </button>
@@ -120,7 +156,7 @@ export default function Admin() {
             >
               <ProjectsManager />
             </motion.div>
-          ) : (
+          ) : activeTab === "resumes" ? (
             <motion.div
               key="resumes"
               initial={{ opacity: 0, y: 10 }}
@@ -128,6 +164,15 @@ export default function Admin() {
               exit={{ opacity: 0, y: -10 }}
             >
               <ResumesManager />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="site"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <SiteSettingsManager />
             </motion.div>
           )}
         </AnimatePresence>
@@ -208,6 +253,200 @@ function LoginForm() {
           </button>
         </div>
       </motion.form>
+    </div>
+  );
+}
+
+/* ─── Site Settings Manager ─── */
+
+function SiteSettingsManager() {
+  const { settings, loading } = useSiteSettings();
+  const [uploading, setUploading] = useState(false);
+  const [savingPosition, setSavingPosition] = useState(false);
+  const [error, setError] = useState("");
+  const [position, setPosition] = useState(DEFAULT_PROFILE_POSITION);
+
+  const profilePictureUrl = settings.profilePictureUrl ?? "/profile.png";
+  const savedPosition = getProfilePosition(settings);
+  const positionDirty =
+    position.x !== savedPosition.x || position.y !== savedPosition.y;
+
+  useEffect(() => {
+    setPosition(getProfilePosition(settings));
+  }, [settings.profilePicturePositionX, settings.profilePicturePositionY]);
+
+  const handleProfileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!isImageFile(file)) {
+      setError("Please upload an image file.");
+      return;
+    }
+    setError("");
+    setUploading(true);
+    try {
+      const path = getStoragePath("profile", file.name);
+      const url = await uploadFile(file, path);
+      const resetPosition = { ...DEFAULT_PROFILE_POSITION };
+      setPosition(resetPosition);
+      const faviconUrl = await uploadProfileFavicon(
+        file,
+        resetPosition.x,
+        resetPosition.y,
+      );
+      await updateSiteSettings({
+        profilePictureUrl: url,
+        profilePicturePositionX: resetPosition.x,
+        profilePicturePositionY: resetPosition.y,
+        ...(faviconUrl ? { faviconUrl } : {}),
+      });
+    } catch (err) {
+      console.error("Profile upload failed:", err);
+      setError(firebaseErrorMessage(err, "Upload failed. Please try again."));
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleSavePosition = async () => {
+    setSavingPosition(true);
+    setError("");
+    try {
+      const faviconUrl = await uploadProfileFavicon(
+        profilePictureUrl,
+        position.x,
+        position.y,
+      );
+      await updateSiteSettings({
+        profilePicturePositionX: position.x,
+        profilePicturePositionY: position.y,
+        ...(faviconUrl ? { faviconUrl } : {}),
+      });
+    } catch (err) {
+      console.error("Position save failed:", err);
+      setError(firebaseErrorMessage(err, "Failed to save position."));
+    } finally {
+      setSavingPosition(false);
+    }
+  };
+
+  const handleResetPosition = () => {
+    setPosition({ ...DEFAULT_PROFILE_POSITION });
+  };
+
+  if (loading) return <LoadingSpinner />;
+
+  return (
+    <div>
+      <h2 className="text-xl font-semibold text-text mb-6">Site Settings</h2>
+
+      <div className="rounded-2xl border border-border bg-bg-card p-6">
+        <h3 className="text-sm font-medium text-text-secondary mb-4">Profile Picture</h3>
+        <p className="text-sm text-text-muted mb-6">
+          This image appears on the home page hero section. Drag the photo to center your face in the circle.
+        </p>
+
+        <div className="flex flex-col lg:flex-row items-start gap-8">
+          <div className="relative flex-shrink-0 mx-auto lg:mx-0">
+            <ProfilePictureFrame
+              src={profilePictureUrl}
+              alt="Profile preview"
+              positionX={position.x}
+              positionY={position.y}
+              editable
+              onPositionChange={(x, y) => setPosition({ x, y })}
+              className="w-44 h-44"
+            />
+            <div className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-accent border-2 border-bg-card pointer-events-none" />
+          </div>
+
+          <div className="flex-1 w-full space-y-5">
+            <label className="flex items-center gap-2 px-4 py-2.5 bg-accent text-text-inverse rounded-xl text-sm font-medium hover:bg-accent-hover transition-colors cursor-pointer w-fit">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleProfileUpload}
+                className="hidden"
+                disabled={uploading}
+              />
+              {uploading ? (
+                <>
+                  <LoadingSpinner />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload size={16} />
+                  Change Photo
+                </>
+              )}
+            </label>
+
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm text-text-secondary">Horizontal</label>
+                  <span className="text-xs text-text-muted">{Math.round(position.x)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={position.x}
+                  onChange={(e) =>
+                    setPosition((prev) => ({ ...prev, x: Number(e.target.value) }))
+                  }
+                  className="w-full accent-accent"
+                />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm text-text-secondary">Vertical</label>
+                  <span className="text-xs text-text-muted">{Math.round(position.y)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={position.y}
+                  onChange={(e) =>
+                    setPosition((prev) => ({ ...prev, y: Number(e.target.value) }))
+                  }
+                  className="w-full accent-accent"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={handleSavePosition}
+                disabled={!positionDirty || savingPosition}
+                className="flex items-center gap-2 px-4 py-2.5 bg-accent text-text-inverse rounded-xl text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-50"
+              >
+                <Save size={16} />
+                {savingPosition ? "Saving..." : "Save Position"}
+              </button>
+              <button
+                onClick={handleResetPosition}
+                disabled={!positionDirty}
+                className="px-4 py-2.5 rounded-xl text-sm font-medium border border-border text-text-secondary hover:border-accent/30 hover:text-accent transition-colors disabled:opacity-50"
+              >
+                Reset
+              </button>
+            </div>
+
+            {!settings.profilePictureUrl && (
+              <p className="text-xs text-text-muted">
+                Using default image from <code className="text-text-secondary">/profile.png</code>
+              </p>
+            )}
+            {error && (
+              <p className="text-red-500 text-xs">{error}</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

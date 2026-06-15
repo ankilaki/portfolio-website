@@ -12,11 +12,13 @@ import {
   Code2,
   FileText,
 } from "lucide-react";
-import { useProjects, useResumes } from "@/hooks/useFirestore";
+import { useProjects, useResumes, useSiteSettings } from "@/hooks/useFirestore";
 import { getGoogleDocExportPdfUrl } from "@/lib/googleDocs";
+import { getProfilePosition } from "@/lib/profilePicture";
 import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import ProfilePictureFrame from "@/components/ProfilePictureFrame";
 import type { ResumeDomain } from "@/types";
 
 const domainIcons: Record<ResumeDomain, typeof Cpu> = {
@@ -33,6 +35,9 @@ export default function Home() {
   const { projects: featuredProjects, loading: projectsLoading } =
     useProjects(true);
   const { resumes, loading: resumesLoading } = useResumes();
+  const { settings } = useSiteSettings();
+  const profilePictureUrl = settings.profilePictureUrl ?? "/profile.png";
+  const profilePosition = getProfilePosition(settings);
   const featuredSlice = featuredProjects.slice(0, 3);
 
   return (
@@ -64,10 +69,12 @@ export default function Home() {
             className="flex-shrink-0"
           >
             <div className="relative">
-              <img
-                src="/profile.png"
+              <ProfilePictureFrame
+                src={profilePictureUrl}
                 alt="Ankith Lakshman"
-                className="w-44 h-44 sm:w-52 sm:h-52 md:w-64 md:h-64 lg:w-72 lg:h-72 rounded-full object-cover object-top border-2 border-border shadow-xl shadow-black/[0.06]"
+                positionX={profilePosition.x}
+                positionY={profilePosition.y}
+                className="w-44 h-44 sm:w-52 sm:h-52 md:w-64 md:h-64 lg:w-72 lg:h-72 shadow-xl shadow-black/[0.06]"
               />
               <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 w-7 h-7 md:w-8 md:h-8 rounded-full bg-accent border-[3px] border-bg" />
             </div>

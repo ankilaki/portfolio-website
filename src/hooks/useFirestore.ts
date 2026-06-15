@@ -9,12 +9,13 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  setDoc,
   where,
   type QueryConstraint,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { normalizeGithubUrls } from "@/lib/githubUrls";
-import type { Project, Resume } from "@/types";
+import type { Project, Resume, SiteSettings } from "@/types";
 
 function toProject(id: string, data: Record<string, unknown>): Project {
   const legacyGithubUrl = data.githubUrl;
@@ -165,4 +166,38 @@ export async function updateResume(
 export async function deleteResume(id: string): Promise<void> {
   if (!db) throw new Error("Firebase not configured");
   await deleteDoc(doc(db, "resumes", id));
+}
+
+export function useSiteSettings() {
+  const [settings, setSettings] = useState<SiteSettings>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!db) {
+      setLoading(false);
+      return;
+    }
+    const unsubscribe = onSnapshot(
+      doc(db, "settings", "site"),
+      (snap) => {
+        setSettings(snap.exists() ? (snap.data() as SiteSettings) : {});
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+    return unsubscribe;
+  }, []);
+
+  return { settings, loading };
+}
+
+export async function updateSiteSettings(
+  data: Partial<SiteSettings>,
+): Promise<void> {
+  if (!db) throw new Error("Firebase not configured");
+  await setDoc(
+    doc(db, "settings", "site"),
+    { ...data, updatedAt: Date.now() },
+    { merge: true },
+  );
 }

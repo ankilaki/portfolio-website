@@ -40,3 +40,11 @@ export type ResumeDomain =
   | "Embedded / Devices"
   | "Software Engineering"
   | "General";
+
+export interface SiteSettings {
+  profilePictureUrl?: string;
+  profilePicturePositionX?: number;
+  profilePicturePositionY?: number;
+  faviconUrl?: string;
+  updatedAt?: number;
+}

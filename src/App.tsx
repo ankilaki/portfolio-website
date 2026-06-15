@@ -8,6 +8,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import Resumes from "./pages/Resumes";
 import ResumeView from "./pages/ResumeView";
 import LoadingSpinner from "./components/LoadingSpinner";
+import { useProfileFavicon } from "./hooks/useProfileFavicon";
 
 const Admin = lazy(() => import("./pages/Admin"));
 
@@ -20,6 +21,8 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  useProfileFavicon();
+
   return (
     <>
       <ScrollToTop />
