@@ -13,7 +13,20 @@ import {
   type QueryConstraint,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { normalizeGithubUrls } from "@/lib/githubUrls";
 import type { Project, Resume } from "@/types";
+
+function toProject(id: string, data: Record<string, unknown>): Project {
+  const legacyGithubUrl = data.githubUrl;
+  return {
+    id,
+    ...data,
+    githubUrls: normalizeGithubUrls(
+      data.githubUrls ??
+        (typeof legacyGithubUrl === "string" ? legacyGithubUrl : undefined),
+    ),
+  } as Project;
+}
 
 export function useProjects(featuredOnly = false) {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -30,9 +43,7 @@ export function useProjects(featuredOnly = false) {
     }
     const q = query(collection(db, "projects"), ...constraints);
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as Project
-      );
+      const data = snapshot.docs.map((d) => toProject(d.id, d.data()));
       if (featuredOnly) {
         data.sort((a, b) => a.featuredOrder - b.featuredOrder);
       }
@@ -58,7 +69,7 @@ export function useProject(id: string | undefined) {
     }
     getDoc(doc(db, "projects", id)).then((snap) => {
       if (snap.exists()) {
-        setProject({ id: snap.id, ...snap.data() } as Project);
+        setProject(toProject(snap.id, snap.data()));
       }
       setLoading(false);
     }).catch(() => setLoading(false));

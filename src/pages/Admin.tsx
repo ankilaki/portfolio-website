@@ -37,6 +37,10 @@ import {
 import { uploadFile, getStoragePath } from "@/lib/storage";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { extractGoogleDocId } from "@/lib/googleDocs";
+import {
+  formatGithubUrlsForInput,
+  parseGithubUrlsInput,
+} from "@/lib/githubUrls";
 import type { Project, Resume, MediaItem, ResumeDomain, ResumeSourceType } from "@/types";
 
 const RESUME_DOMAINS: ResumeDomain[] = [
@@ -330,7 +334,10 @@ function ProjectForm({
     title: project?.title ?? "",
     shortDescription: project?.shortDescription ?? "",
     description: project?.description ?? "",
-    githubUrls: project?.githubUrls?.join("\n") ?? "",
+    githubUrls: formatGithubUrlsForInput(
+      project?.githubUrls ??
+        (project as Project & { githubUrl?: string })?.githubUrl,
+    ),
     liveUrl: project?.liveUrl ?? "",
     tags: project?.tags?.join(", ") ?? "",
     technologies: project?.technologies?.join(", ") ?? "",
@@ -367,7 +374,7 @@ function ProjectForm({
       title: form.title.trim(),
       shortDescription: form.shortDescription.trim(),
       description: form.description.trim(),
-      githubUrls: form.githubUrls.split("\n").map((u) => u.trim()).filter(Boolean),
+      githubUrls: parseGithubUrlsInput(form.githubUrls),
       liveUrl: form.liveUrl.trim(),
       tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
       technologies: form.technologies.split(",").map((t) => t.trim()).filter(Boolean),

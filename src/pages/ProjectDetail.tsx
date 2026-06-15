@@ -2,7 +2,6 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  Github,
   ExternalLink,
   Calendar,
   Tag,
@@ -10,6 +9,7 @@ import {
 import { useProject } from "@/hooks/useFirestore";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import MediaGallery from "@/components/MediaGallery";
+import GithubSourceLinks from "@/components/GithubSourceLinks";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
@@ -78,19 +78,7 @@ export default function ProjectDetail() {
               {createdDate}
             </span>
 
-            {project.githubUrls?.map((url, i) => (
-              <a
-                key={url}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors duration-200"
-              >
-                <Github size={14} />
-                {project.githubUrls.length === 1 ? "Source Code" : `Repo ${i + 1}`}
-                <ExternalLink size={12} />
-              </a>
-            ))}
+            <GithubSourceLinks urls={project.githubUrls ?? []} variant="inline" />
 
             {project.liveUrl && (
               <a
@@ -182,18 +170,7 @@ export default function ProjectDetail() {
           transition={{ duration: 0.5, delay: 0.5, ease }}
           className="mt-14 flex flex-wrap gap-4"
         >
-          {project.githubUrls?.map((url, i) => (
-            <a
-              key={url}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 rounded-xl font-medium text-sm border border-border hover:border-accent/30 hover:bg-accent-glow hover:text-accent transition-all duration-200 flex items-center gap-2"
-            >
-              <Github size={18} />
-              {project.githubUrls.length === 1 ? "View on GitHub" : `Repo ${i + 1}`}
-            </a>
-          ))}
+          <GithubSourceLinks urls={project.githubUrls ?? []} variant="button" />
           {project.liveUrl && (
             <a
               href={project.liveUrl}
