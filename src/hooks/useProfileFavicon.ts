@@ -1,16 +1,20 @@
 import { useEffect } from "react";
 import { useSiteSettings } from "@/hooks/useFirestore";
-import { getProfilePosition } from "@/lib/profilePicture";
+import {
+  DEFAULT_PROFILE_SRC,
+  getProfilePictureUrl,
+  getProfilePosition,
+} from "@/lib/profilePicture";
 import { generateFaviconDataUrl, setFavicon } from "@/lib/favicon";
 
-const DEFAULT_PROFILE_SRC = "/profile.png";
 const DEFAULT_FAVICON = "/favicon.png";
 
 export function useProfileFavicon() {
-  const { settings } = useSiteSettings();
+  const { settings, loading } = useSiteSettings();
 
   useEffect(() => {
-    const src = settings.profilePictureUrl ?? DEFAULT_PROFILE_SRC;
+    const src = getProfilePictureUrl(settings, loading);
+    if (!src) return;
     const position = getProfilePosition(settings);
     let cancelled = false;
 
@@ -41,6 +45,7 @@ export function useProfileFavicon() {
       cancelled = true;
     };
   }, [
+    loading,
     settings.profilePictureUrl,
     settings.profilePicturePositionX,
     settings.profilePicturePositionY,

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useProjects, useResumes, useSiteSettings } from "@/hooks/useFirestore";
 import { getGoogleDocExportPdfUrl } from "@/lib/googleDocs";
-import { getProfilePosition } from "@/lib/profilePicture";
+import { getProfilePictureUrl, getProfilePosition } from "@/lib/profilePicture";
 import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -38,8 +38,8 @@ export default function Home() {
   const { projects: featuredProjects, loading: projectsLoading } =
     useProjects(true);
   const { resumes, loading: resumesLoading } = useResumes();
-  const { settings } = useSiteSettings();
-  const profilePictureUrl = settings.profilePictureUrl ?? "/profile.png";
+  const { settings, loading: settingsLoading } = useSiteSettings();
+  const profilePictureUrl = getProfilePictureUrl(settings, settingsLoading);
   const profilePosition = getProfilePosition(settings);
   const featuredSlice = featuredProjects.slice(0, 3);
 

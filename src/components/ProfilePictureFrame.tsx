@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { clampProfilePosition } from "@/lib/profilePicture";
 
 interface Props {
-  src: string;
+  src?: string;
   alt: string;
   positionX: number;
   positionY: number;
@@ -21,7 +21,19 @@ export default function ProfilePictureFrame({
   onPositionChange,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    setImageLoaded(false);
+    if (!src) return;
+
+    const img = imgRef.current;
+    if (img?.complete && img.naturalWidth > 0) {
+      setImageLoaded(true);
+    }
+  }, [src]);
   const dragStart = useRef<{
     x: number;
     y: number;
@@ -76,13 +88,25 @@ export default function ProfilePictureFrame({
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
     >
-      <img
-        src={src}
-        alt={alt}
-        draggable={false}
-        className="w-full h-full object-cover select-none pointer-events-none"
-        style={{ objectPosition: `${positionX}% ${positionY}%` }}
+      <div
+        aria-hidden={!!src}
+        className={`absolute inset-0 bg-bg-elevated transition-opacity duration-200 ${
+          src && imageLoaded ? "opacity-0" : "opacity-100"
+        }`}
       />
+      {src ? (
+        <img
+          ref={imgRef}
+          src={src}
+          alt={alt}
+          draggable={false}
+          onLoad={() => setImageLoaded(true)}
+          className={`w-full h-full object-cover select-none pointer-events-none transition-opacity duration-200 ${
+            imageLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ objectPosition: `${positionX}% ${positionY}%` }}
+        />
+      ) : null}
     </div>
   );
 }

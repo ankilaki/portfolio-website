@@ -46,6 +46,7 @@ import {
 } from "@/lib/githubUrls";
 import {
   DEFAULT_PROFILE_POSITION,
+  getProfilePictureUrl,
   getProfilePosition,
 } from "@/lib/profilePicture";
 import ProfilePictureFrame from "@/components/ProfilePictureFrame";
@@ -266,7 +267,7 @@ function SiteSettingsManager() {
   const [error, setError] = useState("");
   const [position, setPosition] = useState(DEFAULT_PROFILE_POSITION);
 
-  const profilePictureUrl = settings.profilePictureUrl ?? "/profile.png";
+  const profilePictureUrl = getProfilePictureUrl(settings, loading);
   const savedPosition = getProfilePosition(settings);
   const positionDirty =
     position.x !== savedPosition.x || position.y !== savedPosition.y;
@@ -310,6 +311,8 @@ function SiteSettingsManager() {
   };
 
   const handleSavePosition = async () => {
+    if (!profilePictureUrl) return;
+
     setSavingPosition(true);
     setError("");
     try {

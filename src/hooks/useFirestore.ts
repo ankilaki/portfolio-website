@@ -15,6 +15,11 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { normalizeGithubUrls } from "@/lib/githubUrls";
+import {
+  preloadProfileImage,
+  readCachedProfileSettings,
+  writeCachedProfileSettings,
+} from "@/lib/profileSettingsCache";
 import type { Project, Resume, SiteSettings } from "@/types";
 
 function toProject(id: string, data: Record<string, unknown>): Project {
@@ -169,8 +174,16 @@ export async function deleteResume(id: string): Promise<void> {
 }
 
 export function useSiteSettings() {
-  const [settings, setSettings] = useState<SiteSettings>({});
+  const [settings, setSettings] = useState<SiteSettings>(
+    readCachedProfileSettings,
+  );
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (settings.profilePictureUrl) {
+      preloadProfileImage(settings.profilePictureUrl);
+    }
+  }, [settings.profilePictureUrl]);
 
   useEffect(() => {
     if (!db) {
@@ -180,7 +193,12 @@ export function useSiteSettings() {
     const unsubscribe = onSnapshot(
       doc(db, "settings", "site"),
       (snap) => {
-        setSettings(snap.exists() ? (snap.data() as SiteSettings) : {});
+        const data = snap.exists() ? (snap.data() as SiteSettings) : {};
+        setSettings(data);
+        writeCachedProfileSettings(data);
+        if (data.profilePictureUrl) {
+          preloadProfileImage(data.profilePictureUrl);
+        }
         setLoading(false);
       },
       () => setLoading(false),
